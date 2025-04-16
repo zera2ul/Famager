@@ -59,6 +59,9 @@ class Message_Box:
 
 
 class Screens_Builder:
+    def message_width(self, instance):
+        self.setter("text_size")(self, (self.width, None))
+
     @staticmethod
     def build_changing_personal_data(screen):
         changing_personal_data = screen.manager.get_screen("changing_personal_data")
@@ -180,8 +183,8 @@ class Screens_Builder:
         invitations.layout = layout
         invitations.add_widget(invitations.layout)
 
-    @staticmethod
-    def build_viewing_events(screen):
+    @classmethod
+    def build_viewing_events(cls, screen):
         global events, current_event
 
         viewing_events = screen.manager.get_screen("viewing_events")
@@ -202,15 +205,61 @@ class Screens_Builder:
         user = Configuration.read_login()
         events = Event_Queries.get_all_by_user(user)
         if events != []:
-            date_label = Label(text="Дата")
-            time_label = Label(text="Время")
-            place_label = Label(text="Место")
-            topic_label = Label(text="Тема")
-
-            family_label = Label(text="Семья")
-            creator_label = Label(text="Создатель")
-            who_doesnt_participate_label = Label(text="Кто не участвует")
-            notes_label = Label(text="Заметки")
+            date_label = Label(
+                text="Дата",
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            date_label.bind(width=cls.message_width)
+            time_label = Label(
+                text="Время",
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            time_label.bind(width=cls.message_width)
+            place_label = Label(
+                text="Место",
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            place_label.bind(width=cls.message_width)
+            topic_label = Label(
+                text="Тема",
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            topic_label.bind(width=cls.message_width)
+            family_label = Label(
+                text="Семья",
+                halign="center",
+                font_size="10sp",
+            )
+            family_label.bind(width=cls.message_width)
+            creator_label = Label(
+                text="Создатель",
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            creator_label.bind(width=cls.message_width)
+            who_doesnt_participate_label = Label(
+                text="Кто\nне участвует",
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            who_doesnt_participate_label.bind(width=cls.message_width)
+            notes_label = Label(
+                text="Заметки",
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            notes_label.bind(width=cls.message_width)
 
             labels_layout_1 = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
             labels_layout_1.add_widget(date_label)
@@ -222,17 +271,62 @@ class Screens_Builder:
             labels_layout_1.add_widget(who_doesnt_participate_label)
             labels_layout_1.add_widget(notes_label)
 
-            viewing_events.date = Label(text=events[current_event].date)
-            viewing_events.time = Label(text=events[current_event].time)
-            viewing_events.place = Label(text=events[current_event].place)
-            viewing_events.topic = Label(text=events[current_event].topic)
-
-            viewing_events.family = Label(text=events[current_event].family)
-            viewing_events.creator = Label(text=events[current_event].creator)
-            viewing_events.who_doesnt_participate = Label(
-                text=events[current_event].who_doesnt_participate
+            viewing_events.date = Label(
+                text=events[current_event].date,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
             )
-            viewing_events.notes = Label(text=events[current_event].notes)
+            viewing_events.date.bind(width=cls.message_width)
+            viewing_events.time = Label(
+                text=events[current_event].time,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            viewing_events.time.bind(width=cls.message_width)
+            viewing_events.place = Label(
+                text=events[current_event].place,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            viewing_events.place.bind(width=cls.message_width)
+            viewing_events.topic = Label(
+                text=events[current_event].topic,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            viewing_events.topic.bind(width=cls.message_width)
+            viewing_events.family = Label(
+                text=events[current_event].family,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            viewing_events.family.bind(width=cls.message_width)
+            viewing_events.creator = Label(
+                text=events[current_event].creator,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            viewing_events.creator.bind(width=cls.message_width)
+            viewing_events.who_doesnt_participate = Label(
+                text=events[current_event].who_doesnt_participate,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            viewing_events.who_doesnt_participate.bind(width=cls.message_width)
+            viewing_events.notes = Label(
+                text=events[current_event].notes,
+                halign="center",
+                valign="middle",
+                font_size="10sp",
+            )
+            viewing_events.notes.bind(width=cls.message_width)
 
             labels_layout_2 = BoxLayout(orientation="horizontal")
             labels_layout_2.add_widget(viewing_events.date)
