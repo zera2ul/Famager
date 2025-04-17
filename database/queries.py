@@ -243,8 +243,6 @@ class Family_Queries:
             for it_1 in families:
                 users = (it_1.users).split("\n")
 
-                print(users)
-
                 for it_2 in users:
                     if it_2.split(":")[0] == user:
                         return True

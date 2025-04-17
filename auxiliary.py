@@ -5,7 +5,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 
-from consts import ROLES_EN_RU
+from globals import ROLES_EN_RU
 from database.queries import User_Queries, Invitation_Queries, Event_Queries
 
 
@@ -14,12 +14,42 @@ current_event = 0
 news = {}
 
 
-class Message_Box:
-    def message_width(self, instance):
-        self.setter("text_size")(self, (self.width, None))
+class Centered_Text_Input(TextInput):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
+        self.multiline = False
+        self.halign = "center"
+        self.bind(height=self.center_text)
+
+    def center_text(screen, self, height):
+        self.padding = [0, (height - self.line_height) / 2]
+
+
+class Centered_Button(Button):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.halign = "center"
+        self.valign = "middle"
+        self.bind(width=self.center_text, text=self.center_text)
+
+    def center_text(self, *args):
+        args[0].text_size = (args[0].width, None)
+        args[0].height = args[0].texture_size[0] + 20
+
+
+class Centered_Label(Label):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.halign = "center"
+        self.valign = "middle"
+
+
+class Message_Box:
     @classmethod
-    def create_warning(cls, parent, text):
+    def create_warning(cls, screen, text):
         warning = Popup(
             title="Предупреждение",
             title_align="center",
@@ -28,8 +58,9 @@ class Message_Box:
         )
         message = Label(text=text, halign="center", valign="middle")
         message.bind(width=cls.message_width)
-        close = Button(text="Закрыть")
-        close.bind(on_press=parent.close_on_press)
+        close = Button(
+            text="Закрыть", on_press=screen.close_on_press, size_hint=(1, 0.2)
+        )
 
         content = BoxLayout(orientation="vertical")
         content.add_widget(message)
@@ -39,7 +70,7 @@ class Message_Box:
         return warning
 
     @classmethod
-    def create_info(cls, parent, text):
+    def create_info(cls, screen, text):
         info = Popup(
             title="Информация",
             title_align="center",
@@ -47,7 +78,7 @@ class Message_Box:
         message = Label(text=text, halign="center", valign="middle")
         message.bind(width=cls.message_width)
         close = Button(
-            text="Закрыть", on_press=parent.close_on_press, size_hint=(1, 0.2)
+            text="Закрыть", on_press=screen.close_on_press, size_hint=(1, 0.2)
         )
 
         content = BoxLayout(orientation="vertical")
@@ -56,6 +87,9 @@ class Message_Box:
         info.content = content
 
         return info
+
+    def message_width(self, instance):
+        self.setter("text_size")(self, (self.width, None))
 
 
 class Screens_Builder:
@@ -143,45 +177,35 @@ class Screens_Builder:
         login = Configuration.read_login()
         invitation = Invitation_Queries.get_first_by_invited(login)
         if not invitation is None:
-            Inviter_Label = Label(text="Вас пригласил")
-            Family_Label = Label(text="В семью")
-            Role_Label = Label(text="Ваша роль")
             labels_layout_1 = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-            labels_layout_1.add_widget(Inviter_Label)
-            labels_layout_1.add_widget(Family_Label)
-            labels_layout_1.add_widget(Role_Label)
+            labels_layout_1.add_widget(Label(text="Вас пригласил"))
+            labels_layout_1.add_widget(Label(text="В семью"))
+            labels_layout_1.add_widget(Label(text="Ваша роль"))
 
             inviter = invitation.inviter
             family = invitation.family
             role = invitation.role
-            Inviter = Label(text=inviter)
-            Family = Label(text=family)
-            Role = Label(text=ROLES_EN_RU[role])
-            labels_layout_2 = BoxLayout(orientation="horizontal")
-            labels_layout_2.Inviter = Inviter
-            labels_layout_2.add_widget(labels_layout_2.Inviter)
-            labels_layout_2.Family = Family
-            labels_layout_2.add_widget(labels_layout_2.Family)
-            labels_layout_2.Role = Role
-            labels_layout_2.add_widget(labels_layout_2.Role)
+            invitations.Inviter = Label(text=inviter)
+            invitations.Family = Label(text=family)
+            invitations.Role = Label(text=ROLES_EN_RU[role])
 
-            accept = Button(text="Принять")
-            accept.bind(on_press=invitations.accept_on_press)
-            decline = Button(text="Отклонить")
-            decline.bind(on_press=invitations.decline_on_press)
+            labels_layout_2 = BoxLayout(orientation="horizontal")
+            labels_layout_2.add_widget(invitations.Inviter)
+            labels_layout_2.add_widget(invitations.Family)
+            labels_layout_2.add_widget(invitations.Role)
+
+            accept = Button(text="Принять", on_press=invitations.accept_on_press)
+            decline = Button(text="Отклонить", on_press=invitations.decline_on_press)
+
             buttons_layout = BoxLayout(orientation="horizontal")
             buttons_layout.add_widget(accept)
             buttons_layout.add_widget(decline)
 
-            layout.labels_layout_1 = labels_layout_1
-            layout.add_widget(layout.labels_layout_1)
-            layout.labels_layout_2 = labels_layout_2
-            layout.add_widget(layout.labels_layout_2)
-            layout.buttons_layout = buttons_layout
-            layout.add_widget(layout.buttons_layout)
+            layout.add_widget(labels_layout_1)
+            layout.add_widget(labels_layout_2)
+            layout.add_widget(buttons_layout)
 
-        invitations.layout = layout
-        invitations.add_widget(invitations.layout)
+        invitations.add_widget(layout)
 
     @classmethod
     def build_viewing_events(cls, screen):

@@ -1,10 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 
+from configuration import DATABASE_URL
 
-engine = create_engine(
-    url="postgresql+pg8000://postgres:cAkgnyznPpqiIVVLAsOqbSDllnrQKTYx@turntable.proxy.rlwy.net:15093/railway",
-)
+engine = create_engine(url=DATABASE_URL)
 session_maker = sessionmaker(engine)
 
 

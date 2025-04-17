@@ -4,11 +4,17 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.textinput import TextInput
-
 import webbrowser
 
-from consts import ROLES_EN_RU, ROLES_RU_EN, ROLES_LEVELS
-from auxiliary import Message_Box, Screens_Builder, Validator, Configuration
+from globals import ROLES_EN_RU, ROLES_RU_EN, ROLES_LEVELS, events, current_event, news
+from auxiliary import (
+    Centered_Text_Input,
+    Centered_Button,
+    Message_Box,
+    Screens_Builder,
+    Validator,
+    Configuration,
+)
 from database.queries import (
     User_Queries,
     Family_Queries,
@@ -19,8 +25,8 @@ from database.queries import (
 
 
 class User_Registration(Screen):
-    def __init__(self, **kwargs):
-        super(User_Registration, self).__init__(**kwargs)
+    def __init__(self, **kw):
+        super().__init__(**kw)
 
         registration = Label(text="Регистрация")
         signing_in = Button(text="Вход")
@@ -29,33 +35,23 @@ class User_Registration(Screen):
         upper_layout.add_widget(registration)
         upper_layout.add_widget(signing_in)
 
-        self.login = TextInput(hint_text="Логин", multiline=False, halign="center")
-        self.login.bind(height=self.center_text)
-        self.password = TextInput(hint_text="Пароль", multiline=False, halign="center")
-        self.password.bind(height=self.center_text)
+        self.login = Centered_Text_Input(hint_text="Логин")
+        self.password = Centered_Text_Input(hint_text="Пароль")
 
         login_password_layout = BoxLayout(orientation="horizontal")
         login_password_layout.add_widget(self.login)
         login_password_layout.add_widget(self.password)
 
-        self.surname = TextInput(hint_text="Фамилия", multiline=False, halign="center")
-        self.surname.bind(height=self.center_text)
-        self.Name = TextInput(hint_text="Имя", multiline=False, halign="center")
-        self.Name.bind(height=self.center_text)
-        self.fathername = TextInput(
-            hint_text="Отчество", multiline=False, halign="center"
-        )
-        self.fathername.bind(height=self.center_text)
+        self.surname = Centered_Text_Input(hint_text="Фамилия")
+        self.Name = Centered_Text_Input(hint_text="Имя")
+        self.fathername = Centered_Text_Input(hint_text="Отчество")
 
         names_layout = BoxLayout(orientation="horizontal")
         names_layout.add_widget(self.surname)
         names_layout.add_widget(self.Name)
         names_layout.add_widget(self.fathername)
 
-        self.birthday = TextInput(
-            hint_text="День Рождения", multiline=False, halign="center"
-        )
-        self.birthday.bind(height=self.center_text)
+        self.birthday = Centered_Text_Input(hint_text="День Рождения")
         register = Button(text="Зарегистрироваться", size_hint=(1, 0.25))
         register.bind(on_press=self.register_on_press)
 
@@ -70,9 +66,6 @@ class User_Registration(Screen):
 
     def signing_in_on_press(self, instance):
         self.manager.current = "user_signing_in"
-
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
 
     def register_on_press(self, instance):
         login = self.login.text
@@ -128,21 +121,25 @@ class User_Registration(Screen):
             return
 
         user = User_Queries.get(login)
-        if user is None:
-            User_Queries.add(login, password, surname, name, fathername, birthday)
-
-            self.login.text = ""
-            self.password.text = ""
-            self.surname.text = ""
-            self.Name.text = ""
-            self.fathername.text = ""
-            self.birthday.text = ""
-        else:
+        if not user is None:
             self.warning = Message_Box.create_warning(
                 self, "Этот логин уже используется"
             )
 
             self.add_widget(self.warning)
+
+            return
+
+        User_Queries.add(login, password, surname, name, fathername, birthday)
+
+        self.login.text = ""
+        self.password.text = ""
+        self.surname.text = ""
+        self.Name.text = ""
+        self.fathername.text = ""
+        self.birthday.text = ""
+
+        self.manager.current = "user_signing_in"
 
     def close_on_press(self, instance):
         self.remove_widget(self.warning)
@@ -155,16 +152,16 @@ class User_Signing_In(Screen):
         signing_in = Label(text="Вход")
         registration = Button(text="Регистрация")
         registration.bind(on_press=self.registration_on_press)
+
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
         upper_layout.add_widget(signing_in)
         upper_layout.add_widget(registration)
 
-        self.login = TextInput(hint_text="Логин", multiline=False, halign="center")
-        self.login.bind(height=self.center_text)
-        self.password = TextInput(hint_text="Пароль", multiline=False, halign="center")
-        self.password.bind(height=self.center_text)
-        sign_in = Button(text="Войти", size_hint=(1, 0.2))
-        sign_in.bind(on_press=self.sign_in_on_press)
+        self.login = Centered_Text_Input(hint_text="Логин")
+        self.password = Centered_Text_Input(hint_text="Пароль")
+        sign_in = Button(
+            text="Войти", size_hint=(1, 0.2), on_press=self.sign_in_on_press
+        )
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -177,28 +174,27 @@ class User_Signing_In(Screen):
     def registration_on_press(self, instance):
         self.manager.current = "user_registration"
 
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
-
     def sign_in_on_press(self, instance):
-        login = self.login.text.capitalize()
+        login = self.login.text
         password = self.password.text
 
         user = User_Queries.get(login, password)
-        if not user is None:
-            if Configuration.read_login() == "":
-                Configuration.write_login_password(login, password)
-
-            self.login.text = ""
-            self.password.text = ""
-
-            main = self.manager.get_screen("main")
-            main.user.text = Configuration.read_login()
-            self.manager.current = "main"
-        else:
+        if user is None:
             self.warning = Message_Box.create_warning(self, "Неверный логин или пароль")
 
             self.add_widget(self.warning)
+
+            return
+
+        if Configuration.read_login() == "":
+            Configuration.write_login_password(login, password)
+
+        self.login.text = ""
+        self.password.text = ""
+
+        main = self.manager.get_screen("main")
+        main.user.text = Configuration.read_login()
+        self.manager.current = "main"
 
     def close_on_press(self, instance):
         self.remove_widget(self.warning)
@@ -210,24 +206,22 @@ class Main(Screen):
 
         self.user = Button(
             text=Configuration.read_login(),
-            size_hint=(0.3, 1),
             on_press=self.user_on_press,
+            size_hint=(0.3, 1),
         )
         title = Label(text="Главная")
-        sign_out = Button(text="Выйти", size_hint=(0.3, 1))
-        sign_out.bind(on_press=self.sign_out_on_press)
+        sign_out = Button(
+            text="Выйти", on_press=self.sign_out_on_press, size_hint=(0.3, 1)
+        )
 
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
         upper_layout.add_widget(self.user)
         upper_layout.add_widget(title)
         upper_layout.add_widget(sign_out)
 
-        families = Button(text="Семьи")
-        families.bind(on_press=self.families_on_press)
-        events = Button(text="События")
-        events.bind(on_press=self.events_on_press)
-        news = Button(text="Новости")
-        news.bind(on_press=self.news_on_press)
+        families = Button(text="Семьи", on_press=self.families_on_press)
+        events = Button(text="События", on_press=self.events_on_press)
+        news = Button(text="Новости", on_press=self.news_on_press)
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -271,6 +265,13 @@ class Changing_Personal_Data(Screen):
 
     def change_on_press(self, instance):
         login = self.login.text
+        password = self.password.text
+        surname = self.surname.text
+        name = self.Name.text
+        fathername = self.fathername.text
+        birthday = self.birthday.text
+        wishlist = self.wishlist.text
+
         if not Validator.validate_login(login):
             self.warning = Message_Box.create_warning(
                 self, "Логин может содержать только буквы и цифры"
@@ -280,9 +281,6 @@ class Changing_Personal_Data(Screen):
 
             return
 
-        password = self.password.text
-
-        surname = self.surname.text
         if not Validator.validate_name(surname):
             self.warning = Message_Box.create_warning(
                 self, "Фамилия может содержать только буквы"
@@ -292,7 +290,6 @@ class Changing_Personal_Data(Screen):
 
             return
 
-        name = self.Name.text
         if not Validator.validate_name(name):
             self.warning = Message_Box.create_warning(
                 self, "Имя может содержать только буквы"
@@ -302,7 +299,6 @@ class Changing_Personal_Data(Screen):
 
             return
 
-        fathername = self.fathername.text
         if not Validator.validate_name(fathername):
             self.warning = Message_Box.create_warning(
                 self, "Отчество может содержать только буквы"
@@ -312,7 +308,6 @@ class Changing_Personal_Data(Screen):
 
             return
 
-        birthday = self.birthday.text
         if not Validator.validate_date_format(birthday):
             self.warning = Message_Box.create_warning(
                 self, "День Рождения указан неправильно"
@@ -321,8 +316,6 @@ class Changing_Personal_Data(Screen):
             self.add_widget(self.warning)
 
             return
-
-        wishlist = self.wishlist.text
 
         if self.old_user_data.login != login:
             user = User_Queries.get(login)
@@ -381,8 +374,6 @@ class Changing_Personal_Data(Screen):
                 wishlist,
             )
 
-        Screens_Builder.build_changing_personal_data(self)
-
     def close_on_press(self, instance):
         self.remove_widget(self.warning)
 
@@ -391,25 +382,25 @@ class Families(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную", size_hint=(1, 0.5))
-        to_main.bind(on_press=self.to_main_on_press)
-
-        invitations = Button(text="Приглашения")
-        invitations.bind(on_press=self.invitations_on_press)
+        invitations = Button(text="Приглашения", on_press=self.invitations_on_press)
         info_about_users = Button(
             text="Информация о пользователях", on_press=self.info_about_users_on_press
         )
-        create = Button(text="Создать")
-        create.bind(on_press=self.create_on_press)
-        invite_user = Button(text="Пригласить пользователя")
-        invite_user.bind(on_press=self.invite_user_on_press)
-        delete = Button(text="Удалить")
-        delete.bind(on_press=self.delete_on_press)
-        remove_user = Button(text="Удалить пользователя")
-        remove_user.bind(on_press=self.remove_user_on_press)
+        create = Button(text="Создать", on_press=self.create_on_press)
+        invite_user = Button(
+            text="Пригласить пользователя", on_press=self.invite_user_on_press
+        )
+        delete = Button(text="Удалить", on_press=self.delete_on_press)
+        remove_user = Button(
+            text="Удалить пользователя", on_press=self.remove_user_on_press
+        )
 
         layout = BoxLayout(orientation="vertical")
-        layout.add_widget(to_main)
+        layout.add_widget(
+            Button(
+                text="На главную", size_hint=(1, 0.5), on_press=self.to_main_on_press
+            )
+        )
         layout.add_widget(invitations)
         layout.add_widget(info_about_users)
         layout.add_widget(create)
@@ -420,15 +411,6 @@ class Families(Screen):
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
-        self.manager.current = "main"
-
-    def back_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def invitations_on_press(self, instance):
@@ -459,64 +441,56 @@ class Invitations(Screen):
         self.clear_widgets()
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
         self.manager.current = "families"
 
     def accept_on_press(self, instance):
-        inviter = self.layout.labels_layout_2.Inviter.text
-        family = self.layout.labels_layout_2.Family.text
-        role = self.layout.labels_layout_2.Role.text
+        inviter = self.Inviter.text
+        family = self.Family.text
+        role = self.Role.text
         login = Configuration.read_login()
+
         Family_Queries.add_user(family, inviter, login, ROLES_RU_EN[role])
         Invitation_Queries.delete(login, inviter, family)
 
         invitation = Invitation_Queries.get_first_by_invited(login)
         if not invitation is None:
-            self.layout.labels_layout_2.Inviter.text = invitation.inviter
-            self.layout.labels_layout_2.Family.text = invitation.family
-            self.layout.labels_layout_2.Role.text = invitation.role
+            self.Inviter.text = invitation.inviter
+            self.Family.text = invitation.family
+            self.Role.text = invitation.role
         else:
-            self.layout.remove_widget(self.layout.labels_layout_1)
-            self.layout.remove_widget(self.layout.labels_layout_2)
-            self.layout.remove_widget(self.layout.buttons_layout)
+            self.__init__()
+            Screens_Builder.build_invitations(self)
 
     def decline_on_press(self, instance):
-        inviter = self.layout.labels_layout_2.Inviter.text
-        family = self.layout.labels_layout_2.Family.text
+        inviter = self.Inviter.text
+        family = self.Family.text
         login = Configuration.read_login()
         Invitation_Queries.delete(login, inviter, family)
 
         invitation = Invitation_Queries.get_first_by_invited(login)
         if not invitation is None:
-            self.layout.labels_layout_2.Inviter.text = invitation.inviter
-            self.layout.labels_layout_2.Family.text = invitation.family
-            self.layout.labels_layout_2.Role.text = invitation.role
+            self.Inviter.text = invitation.inviter
+            self.Family.text = invitation.family
+            self.Role.text = invitation.role
         else:
-            self.layout.remove_widget(self.layout.labels_layout_1)
-            self.layout.remove_widget(self.layout.labels_layout_2)
-            self.layout.remove_widget(self.layout.buttons_layout)
+            self.__init__()
+            Screens_Builder.build_invitations(self)
 
 
 class Info_About_Users(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=self.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=self.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=self.to_main_on_press)
+        )
+        upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family = TextInput(hint_text="Семья", multiline=False, halign="center")
-        self.family.bind(height=self.center_text)
+        self.family = Centered_Text_Input(hint_text="Семья")
         get = Button(text="Получить", on_press=self.get_on_press)
 
         layout = BoxLayout(orientation="vertical")
@@ -527,16 +501,10 @@ class Info_About_Users(Screen):
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
         self.manager.current = "families"
-
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
 
     def get_on_press(self, instance):
         family = self.family.text
@@ -586,19 +554,14 @@ class Creating_Family(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=self.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=self.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=self.to_main_on_press)
+        )
+        upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.Name = TextInput(hint_text="Название", multiline=False, halign="center")
-        self.Name.bind(height=self.center_text)
-        create = Button(text="Создать")
-        create.bind(on_press=self.create_on_press)
+        self.Name = Centered_Text_Input(hint_text="Название")
+        create = Button(text="Создать", on_press=self.create_on_press)
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -608,19 +571,15 @@ class Creating_Family(Screen):
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
         self.manager.current = "families"
 
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
-
     def create_on_press(self, instance):
         name = self.Name.text
+        creator = Configuration.read_login()
+
         if not Validator.validate_name(name):
             self.warning = Message_Box.create_warning(
                 self, "Название семьи может содержать только буквы"
@@ -630,10 +589,7 @@ class Creating_Family(Screen):
 
             return
 
-        creator = Configuration.read_login()
-
-        family = Family_Queries.is_user_in_family(name, creator)
-        if family is False:
+        if Family_Queries.is_user_in_family(name, creator) is False:
             Family_Queries.add(name, creator)
         else:
             self.warning = Message_Box.create_warning(
@@ -654,27 +610,17 @@ class Inviting_User_Into_Family(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=self.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=self.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=self.to_main_on_press)
+        )
+        upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family_name = TextInput(
-            hint_text="Семья", multiline=False, halign="center"
-        )
-        self.family_name.bind(height=self.center_text)
-        self.user = TextInput(
-            hint_text="Пользователь", multiline=False, halign="center"
-        )
-        self.user.bind(height=self.center_text)
+        self.family_name = Centered_Text_Input(hint_text="Семья")
+        self.user = Centered_Text_Input(hint_text="Пользователь")
 
         self.is_admin = ToggleButton(text="Админ", group="")
-        invite = Button(text="Пригласить")
-        invite.bind(on_press=self.invite_on_press)
+        invite = Button(text="Пригласить", on_press=self.invite_on_press)
 
         buttons_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
         buttons_layout.add_widget(self.is_admin)
@@ -685,23 +631,19 @@ class Inviting_User_Into_Family(Screen):
         layout.add_widget(self.family_name)
         layout.add_widget(self.user)
         layout.add_widget(buttons_layout)
+
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
         self.manager.current = "families"
 
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
-
     def invite_on_press(self, instance):
         family = self.family_name.text
         inviter = Configuration.read_login()
+        user = self.user.text
 
         if Family_Queries.is_user_in_family(family, inviter) is False:
             self.warning = Message_Box.create_warning(
@@ -722,7 +664,6 @@ class Inviting_User_Into_Family(Screen):
 
             return
 
-        user = self.user.text
         if User_Queries.get(user) is None:
             self.warning = Message_Box.create_warning(
                 self, "Несуществует пользователя с таким логином"
@@ -777,19 +718,14 @@ class Deleting_Family(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=self.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=self.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=self.to_main_on_press)
+        )
+        upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family = TextInput(hint_text="Семья", halign="center")
-        self.family.bind(height=self.center_text)
-        delete = Button(text="Удалить")
-        delete.bind(on_press=self.delete_on_press)
+        self.family = Centered_Text_Input(hint_text="Семья")
+        delete = Button(text="Удалить", on_press=self.delete_on_press)
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -799,16 +735,10 @@ class Deleting_Family(Screen):
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
         self.manager.current = "families"
-
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
 
     def delete_on_press(self, instance):
         family = self.family.text
@@ -845,21 +775,15 @@ class Removing_User_From_Family(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=self.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=self.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=self.to_main_on_press)
+        )
+        upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family = TextInput(hint_text="Семья", halign="center")
-        self.family.bind(height=self.center_text)
-        self.user = TextInput(hint_text="Пользователь", halign="center")
-        self.user.bind(height=self.center_text)
-        remove = Button(text="Удалить")
-        remove.bind(on_press=self.remove_on_press)
+        self.family = Centered_Text_Input(hint_text="Семья")
+        self.user = Centered_Text_Input(hint_text="Пользователь")
+        remove = Button(text="Удалить", on_press=self.remove_on_press)
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -875,11 +799,7 @@ class Removing_User_From_Family(Screen):
     def back_on_press(self, instance):
         self.manager.current = "families"
 
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
-
     def remove_on_press(self, instance):
-        global ROLES_LEVELS
         family = self.family.text
         user = self.user.text
         remover = Configuration.read_login()
@@ -927,9 +847,6 @@ class Events(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную", size_hint=(1, 0.2))
-        to_main.bind(on_press=self.to_main_on_press)
-
         view = Button(text="Просмотреть")
         view.bind(on_press=self.view_on_press)
         create = Button(text="Создать")
@@ -938,7 +855,11 @@ class Events(Screen):
         delete.bind(on_press=self.delete_on_press)
 
         layout = BoxLayout(orientation="vertical")
-        layout.add_widget(to_main)
+        layout.add_widget(
+            Button(
+                text="На главную", on_press=self.to_main_on_press, size_hint=(1, 0.2)
+            )
+        )
         layout.add_widget(view)
         layout.add_widget(create)
         layout.add_widget(delete)
@@ -946,15 +867,6 @@ class Events(Screen):
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
-        self.manager.current = "main"
-
-    def back_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def view_on_press(self, instance):
@@ -976,9 +888,6 @@ class Viewing_Events(Screen):
         self.clear_widgets()
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
@@ -1020,28 +929,25 @@ class Viewing_Events(Screen):
             return
 
         current_event += 1
-        self.date.text = str(events[current_event].date)
-        self.time.text = str(events[current_event].time)
-        self.place.text = str(events[current_event].place)
-        self.topic.text = str(events[current_event].topic)
-        self.family.text = str(events[current_event].family)
-        self.creator.text = str(events[current_event].creator)
-        self.who_doesnt_participate.text = str(
-            events[current_event].who_doesnt_participate
-        )
-        self.notes.text = str(events[current_event].notes)
+        self.date.text = events[current_event].date
+        self.time.text = events[current_event].time
+        self.place.text = events[current_event].place
+        self.topic.text = events[current_event].topic
+        self.family.text = events[current_event].family
+        self.creator.text = events[current_event].creator
+        self.who_doesnt_participate.text = events[current_event].who_doesnt_participate
+        self.notes.text = events[current_event].notes
 
 
 class Creating_Event(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную", on_press=self.to_main_on_press)
-        back = Button(text="Назад", on_press=self.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=self.to_main_on_press)
+        )
+        upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
         self.date = TextInput(hint_text="Дата", multiline=False, halign="center")
         self.time = TextInput(hint_text="Время", multiline=False, halign="center")
@@ -1072,9 +978,6 @@ class Creating_Event(Screen):
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
@@ -1165,23 +1068,16 @@ class Deleting_Event(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=self.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=self.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=self.to_main_on_press)
+        )
+        upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.date = TextInput(hint_text="Дата", multiline=False, halign="center")
-        self.date.bind(height=self.center_text)
-        self.topic = TextInput(hint_text="Тема", multiline=False, halign="center")
-        self.topic.bind(height=self.center_text)
-        self.family = TextInput(hint_text="Семья", multiline=False, halign="center")
-        self.family.bind(height=self.center_text)
-        delete = Button(text="Удалить")
-        delete.bind(on_press=self.delete_on_press)
+        self.date = Centered_Text_Input(hint_text="Дата")
+        self.topic = Centered_Text_Input(hint_text="Тема")
+        self.family = Centered_Text_Input(hint_text="Семья")
+        delete = Button(text="Удалить", on_press=self.delete_on_press)
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -1193,16 +1089,10 @@ class Deleting_Event(Screen):
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def back_on_press(self, instance):
         self.manager.current = "events"
-
-    def center_text(self, instance, height):
-        instance.padding = [0, (height - instance.line_height) / 2]
 
     def delete_on_press(self, instance):
         date = self.date.text
@@ -1250,36 +1140,23 @@ class Deleting_Event(Screen):
 class News(Screen):
     def __init__(self, **kw):
         global news
-
         super().__init__(**kw)
 
-        to_main = Button(text="На главную", size_hint=(1, 0.5))
-        to_main.bind(on_press=self.to_main_on_press)
-
         layout = BoxLayout(orientation="vertical")
-        layout.add_widget(to_main)
+        layout.add_widget(
+            Button(
+                text="На главную", on_press=self.to_main_on_press, size_hint=(1, 0.5)
+            )
+        )
         news = News_Queries.get_all()
         for it in news.keys():
-            news_button = Button(
-                text=it,
-                halign="center",
-                valign="middle",
-                on_press=self.button_on_press,
-            )
-            news_button.bind(width=self.center_text, text=self.center_text)
+            news_button = Centered_Button(text=it, on_press=self.button_on_press)
             layout.add_widget(news_button)
 
         self.add_widget(layout)
 
     def to_main_on_press(self, instance):
-        main = self.manager.get_screen("main")
-        main.user.text = Configuration.read_login()
-
         self.manager.current = "main"
 
     def button_on_press(self, instance):
         webbrowser.open(f"https://pravo.by{news[instance.text]}")
-
-    def center_text(self, *args):
-        args[0].text_size = (args[0].width, None)
-        args[0].height = args[0].texture_size[0] + 20
