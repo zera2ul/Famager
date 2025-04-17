@@ -1,17 +1,12 @@
 from datetime import datetime
-from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
 
-from globals import ROLES_EN_RU
+from globals import ROLES_EN_RU, events, current_event
 from database.queries import User_Queries, Invitation_Queries, Event_Queries
-
-
-events = []
-current_event = 0
-news = {}
 
 
 class Centered_Text_Input(TextInput):
@@ -24,6 +19,18 @@ class Centered_Text_Input(TextInput):
 
     def center_text(screen, self, height):
         self.padding = [0, (height - self.line_height) / 2]
+
+
+class Centered_Label(Label):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.halign = "center"
+        self.valign = "middle"
+        self.bind(width=self.center_text)
+
+    def center_text(self, instance, width):
+        self.setter("text_size")(self, (self.width, None))
 
 
 class Centered_Button(Button):
@@ -39,24 +46,10 @@ class Centered_Button(Button):
         args[0].height = args[0].texture_size[0] + 20
 
 
-class Centered_Label(Label):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.halign = "center"
-        self.valign = "middle"
-
-
 class Message_Box:
     @classmethod
     def create_warning(cls, screen, text):
-        warning = Popup(
-            title="Предупреждение",
-            title_align="center",
-            size_hint=(0.75, 0.75),
-            pos_hint={"center_x": 0.5, "center_y": 0.5},
-        )
-        message = Label(text=text, halign="center", valign="middle")
+        message = Centered_Label(text=text)
         message.bind(width=cls.message_width)
         close = Button(
             text="Закрыть", on_press=screen.close_on_press, size_hint=(1, 0.2)
@@ -65,17 +58,20 @@ class Message_Box:
         content = BoxLayout(orientation="vertical")
         content.add_widget(message)
         content.add_widget(close)
-        warning.content = content
+
+        warning = Popup(
+            title="Предупреждение",
+            content=content,
+            title_align="center",
+            size_hint=(0.75, 0.75),
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+        )
 
         return warning
 
     @classmethod
     def create_info(cls, screen, text):
-        info = Popup(
-            title="Информация",
-            title_align="center",
-        )
-        message = Label(text=text, halign="center", valign="middle")
+        message = Centered_Label(text=text)
         message.bind(width=cls.message_width)
         close = Button(
             text="Закрыть", on_press=screen.close_on_press, size_hint=(1, 0.2)
@@ -84,6 +80,11 @@ class Message_Box:
         content = BoxLayout(orientation="vertical")
         content.add_widget(message)
         content.add_widget(close)
+
+        info = Popup(
+            title="Информация",
+            title_align="center",
+        )
         info.content = content
 
         return info
@@ -93,16 +94,10 @@ class Message_Box:
 
 
 class Screens_Builder:
-    def message_width(self, instance):
-        self.setter("text_size")(self, (self.width, None))
-
     @staticmethod
     def build_changing_personal_data(screen):
         changing_personal_data = screen.manager.get_screen("changing_personal_data")
         changing_personal_data.__init__()
-
-        to_main = Button(text="На главную", size_hint=(1, 0.2))
-        to_main.bind(on_press=changing_personal_data.to_main_on_press)
 
         changing_personal_data.old_user_data = User_Queries.get(
             Configuration.read_login()
@@ -151,7 +146,13 @@ class Screens_Builder:
         )
 
         layout = BoxLayout(orientation="vertical")
-        layout.add_widget(to_main)
+        layout.add_widget(
+            Button(
+                text="На главную",
+                on_press=changing_personal_data.to_main_on_press,
+                size_hint=(1, 0.2),
+            )
+        )
         layout.add_widget(center_layout)
         layout.add_widget(change)
 
@@ -162,14 +163,13 @@ class Screens_Builder:
         invitations = screen.manager.get_screen("invitations")
         invitations.__init__()
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=invitations.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=invitations.back_on_press)
-
         upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=invitations.to_main_on_press)
+        )
+        upper_layout.add_widget(
+            Button(text="Назад", on_press=invitations.back_on_press)
+        )
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -384,8 +384,6 @@ class Screens_Builder:
 
 class Validator:
     def validate_login(login):
-        login = login.capitalize()
-
         if not login.isalnum():
             return False
 

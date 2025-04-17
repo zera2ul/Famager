@@ -47,7 +47,7 @@ class User_Queries:
         fathername = fathername.capitalize()
         wishlist = wishlist.split("\n")
         for ind, el in enumerate(wishlist):
-            wishlist[ind] = el.capitalize()
+            wishlist[ind] = el.title()
         wishlist = "\n".join(wishlist)
 
         with session_maker() as session:
