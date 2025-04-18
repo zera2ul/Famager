@@ -9,39 +9,39 @@ from globals import ROLES_EN_RU, events, current_event
 from database.queries import User_Queries, Invitation_Queries, Event_Queries
 
 
-class Centered_Text_Input(TextInput):
+class Centred_Text_Input(TextInput):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.multiline = False
         self.halign = "center"
-        self.bind(height=self.center_text)
+        self.bind(height=self.centre_text)
 
-    def center_text(screen, self, height):
+    def centre_text(screen, self, height):
         self.padding = [0, (height - self.line_height) / 2]
 
 
-class Centered_Label(Label):
+class Centred_Label(Label):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.halign = "center"
         self.valign = "middle"
-        self.bind(width=self.center_text)
+        self.bind(width=self.centre_text)
 
-    def center_text(self, instance, width):
+    def centre_text(self, instance, width):
         self.setter("text_size")(self, (self.width, None))
 
 
-class Centered_Button(Button):
+class Centred_Button(Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.halign = "center"
         self.valign = "middle"
-        self.bind(width=self.center_text, text=self.center_text)
+        self.bind(width=self.centre_text, text=self.centre_text)
 
-    def center_text(self, *args):
+    def centre_text(self, *args):
         args[0].text_size = (args[0].width, None)
         args[0].height = args[0].texture_size[0] + 20
 
@@ -49,7 +49,7 @@ class Centered_Button(Button):
 class Message_Box:
     @classmethod
     def create_warning(cls, screen, text):
-        message = Centered_Label(text=text)
+        message = Centred_Label(text=text)
         message.bind(width=cls.message_width)
         close = Button(
             text="Закрыть", on_press=screen.close_on_press, size_hint=(1, 0.2)
@@ -71,7 +71,7 @@ class Message_Box:
 
     @classmethod
     def create_info(cls, screen, text):
-        message = Centered_Label(text=text)
+        message = Centred_Label(text=text)
         message.bind(width=cls.message_width)
         close = Button(
             text="Закрыть", on_press=screen.close_on_press, size_hint=(1, 0.2)
@@ -229,17 +229,17 @@ class Screens_Builder:
         events = Event_Queries.get_all_by_user(user)
         if events != []:
             labels_layout_1 = BoxLayout(orientation="horizontal")
-            labels_layout_1.add_widget(Centered_Label(text="Дата"))
-            labels_layout_1.add_widget(Centered_Label(text="Время"))
-            labels_layout_1.add_widget(Centered_Label(text="Место"))
+            labels_layout_1.add_widget(Centred_Label(text="Дата"))
+            labels_layout_1.add_widget(Centred_Label(text="Время"))
+            labels_layout_1.add_widget(Centred_Label(text="Место"))
 
-            viewing_events.date = Centered_Label(
+            viewing_events.date = Centred_Label(
                 text=events[current_event].date,
             )
-            viewing_events.time = Centered_Label(
+            viewing_events.time = Centred_Label(
                 text=events[current_event].time,
             )
-            viewing_events.place = Centered_Label(
+            viewing_events.place = Centred_Label(
                 text=events[current_event].place,
             )
 
@@ -249,13 +249,13 @@ class Screens_Builder:
             date_time_place_layout.add_widget(viewing_events.place)
 
             labels_layout_2 = BoxLayout(orientation="horizontal")
-            labels_layout_2.add_widget(Centered_Label(text="Тема"))
-            labels_layout_2.add_widget(Centered_Label(text="Семья"))
-            labels_layout_2.add_widget(Centered_Label(text="Создатель"))
+            labels_layout_2.add_widget(Centred_Label(text="Тема"))
+            labels_layout_2.add_widget(Centred_Label(text="Семья"))
+            labels_layout_2.add_widget(Centred_Label(text="Создатель"))
 
-            viewing_events.topic = Centered_Label(text=events[current_event].topic)
-            viewing_events.family = Centered_Label(text=events[current_event].family)
-            viewing_events.creator = Centered_Label(text=events[current_event].creator)
+            viewing_events.topic = Centred_Label(text=events[current_event].topic)
+            viewing_events.family = Centred_Label(text=events[current_event].family)
+            viewing_events.creator = Centred_Label(text=events[current_event].creator)
 
             topic_family_creator_layout = BoxLayout(orientation="horizontal")
             topic_family_creator_layout.add_widget(viewing_events.topic)
@@ -263,13 +263,13 @@ class Screens_Builder:
             topic_family_creator_layout.add_widget(viewing_events.creator)
 
             labels_layout_3 = BoxLayout(orientation="horizontal")
-            labels_layout_3.add_widget(Centered_Label(text="Кто не участвует"))
-            labels_layout_3.add_widget(Centered_Label(text="Заметки"))
+            labels_layout_3.add_widget(Centred_Label(text="Кто не участвует"))
+            labels_layout_3.add_widget(Centred_Label(text="Заметки"))
 
-            viewing_events.who_doesnt_participate = Centered_Label(
+            viewing_events.who_doesnt_participate = Centred_Label(
                 text=events[current_event].who_doesnt_participate,
             )
-            viewing_events.notes = Centered_Label(
+            viewing_events.notes = Centred_Label(
                 text=events[current_event].notes,
             )
 

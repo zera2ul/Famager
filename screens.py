@@ -8,8 +8,8 @@ import webbrowser
 
 from globals import ROLES_EN_RU, ROLES_RU_EN, ROLES_LEVELS, events, current_event, news
 from auxiliary import (
-    Centered_Text_Input,
-    Centered_Button,
+    Centred_Text_Input,
+    Centred_Button,
     Message_Box,
     Screens_Builder,
     Validator,
@@ -35,23 +35,23 @@ class User_Registration(Screen):
         upper_layout.add_widget(registration)
         upper_layout.add_widget(signing_in)
 
-        self.login = Centered_Text_Input(hint_text="Логин")
-        self.password = Centered_Text_Input(hint_text="Пароль")
+        self.login = Centred_Text_Input(hint_text="Логин")
+        self.password = Centred_Text_Input(hint_text="Пароль")
 
         login_password_layout = BoxLayout(orientation="horizontal")
         login_password_layout.add_widget(self.login)
         login_password_layout.add_widget(self.password)
 
-        self.surname = Centered_Text_Input(hint_text="Фамилия")
-        self.Name = Centered_Text_Input(hint_text="Имя")
-        self.fathername = Centered_Text_Input(hint_text="Отчество")
+        self.surname = Centred_Text_Input(hint_text="Фамилия")
+        self.Name = Centred_Text_Input(hint_text="Имя")
+        self.fathername = Centred_Text_Input(hint_text="Отчество")
 
         names_layout = BoxLayout(orientation="horizontal")
         names_layout.add_widget(self.surname)
         names_layout.add_widget(self.Name)
         names_layout.add_widget(self.fathername)
 
-        self.birthday = Centered_Text_Input(hint_text="День Рождения")
+        self.birthday = Centred_Text_Input(hint_text="День Рождения")
         register = Button(text="Зарегистрироваться", size_hint=(1, 0.25))
         register.bind(on_press=self.register_on_press)
 
@@ -157,8 +157,8 @@ class User_Signing_In(Screen):
         upper_layout.add_widget(signing_in)
         upper_layout.add_widget(registration)
 
-        self.login = Centered_Text_Input(hint_text="Логин")
-        self.password = Centered_Text_Input(hint_text="Пароль")
+        self.login = Centred_Text_Input(hint_text="Логин")
+        self.password = Centred_Text_Input(hint_text="Пароль")
         sign_in = Button(
             text="Войти", size_hint=(1, 0.2), on_press=self.sign_in_on_press
         )
@@ -490,7 +490,7 @@ class Info_About_Users(Screen):
         )
         upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family = Centered_Text_Input(hint_text="Семья")
+        self.family = Centred_Text_Input(hint_text="Семья")
         get = Button(text="Получить", on_press=self.get_on_press)
 
         layout = BoxLayout(orientation="vertical")
@@ -560,7 +560,7 @@ class Creating_Family(Screen):
         )
         upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.Name = Centered_Text_Input(hint_text="Название")
+        self.Name = Centred_Text_Input(hint_text="Название")
         create = Button(text="Создать", on_press=self.create_on_press)
 
         layout = BoxLayout(orientation="vertical")
@@ -616,8 +616,8 @@ class Inviting_User_Into_Family(Screen):
         )
         upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family_name = Centered_Text_Input(hint_text="Семья")
-        self.user = Centered_Text_Input(hint_text="Пользователь")
+        self.family_name = Centred_Text_Input(hint_text="Семья")
+        self.user = Centred_Text_Input(hint_text="Пользователь")
 
         self.is_admin = ToggleButton(text="Админ", group="")
         invite = Button(text="Пригласить", on_press=self.invite_on_press)
@@ -721,7 +721,7 @@ class Deleting_Family(Screen):
         )
         upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family = Centered_Text_Input(hint_text="Семья")
+        self.family = Centred_Text_Input(hint_text="Семья")
         delete = Button(text="Удалить", on_press=self.delete_on_press)
 
         layout = BoxLayout(orientation="vertical")
@@ -778,8 +778,8 @@ class Removing_User_From_Family(Screen):
         )
         upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.family = Centered_Text_Input(hint_text="Семья")
-        self.user = Centered_Text_Input(hint_text="Пользователь")
+        self.family = Centred_Text_Input(hint_text="Семья")
+        self.user = Centred_Text_Input(hint_text="Пользователь")
         remove = Button(text="Удалить", on_press=self.remove_on_press)
 
         layout = BoxLayout(orientation="vertical")
@@ -1071,9 +1071,9 @@ class Deleting_Event(Screen):
         )
         upper_layout.add_widget(Button(text="Назад", on_press=self.back_on_press))
 
-        self.date = Centered_Text_Input(hint_text="Дата")
-        self.topic = Centered_Text_Input(hint_text="Тема")
-        self.family = Centered_Text_Input(hint_text="Семья")
+        self.date = Centred_Text_Input(hint_text="Дата")
+        self.topic = Centred_Text_Input(hint_text="Тема")
+        self.family = Centred_Text_Input(hint_text="Семья")
         delete = Button(text="Удалить", on_press=self.delete_on_press)
 
         layout = BoxLayout(orientation="vertical")
@@ -1147,7 +1147,7 @@ class News(Screen):
         )
         news = News_Queries.get_all()
         for it in news.keys():
-            news_button = Centered_Button(text=it, on_press=self.button_on_press)
+            news_button = Centred_Button(text=it, on_press=self.button_on_press)
             layout.add_widget(news_button)
 
         self.add_widget(layout)
