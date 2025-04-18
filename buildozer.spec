@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,typing_extensions,python-dateutil,kivy,pg8000,scramp,asn1crypto,sqlalchemy>=2.0.0,beautifulsoup4,plyer
+requirements = python3,typing_extensions,python-dateutil,kivy,pg8000,scramp,asn1crypto,sqlalchemy>=2.0.0,beautifulsoup4
 
 
 # (str) Custom source folders for requirements

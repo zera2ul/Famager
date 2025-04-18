@@ -1,7 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 
-from configuration import DATABASE_URL
+try:
+    from database.configuration import DATABASE_URL
+except:
+    from configuration import DATABASE_URL
 
 engine = create_engine(url=DATABASE_URL)
 session_maker = sessionmaker(engine)
