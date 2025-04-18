@@ -214,14 +214,13 @@ class Screens_Builder:
         viewing_events = screen.manager.get_screen("viewing_events")
         viewing_events.__init__()
 
-        to_main = Button(text="На главную")
-        to_main.bind(on_press=viewing_events.to_main_on_press)
-        back = Button(text="Назад")
-        back.bind(on_press=viewing_events.back_on_press)
-
-        upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        upper_layout.add_widget(to_main)
-        upper_layout.add_widget(back)
+        upper_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.3))
+        upper_layout.add_widget(
+            Button(text="На главную", on_press=viewing_events.to_main_on_press)
+        )
+        upper_layout.add_widget(
+            Button(text="Назад", on_press=viewing_events.back_on_press)
+        )
 
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
@@ -229,138 +228,56 @@ class Screens_Builder:
         user = Configuration.read_login()
         events = Event_Queries.get_all_by_user(user)
         if events != []:
-            date_label = Label(
-                text="Дата",
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            date_label.bind(width=cls.message_width)
-            time_label = Label(
-                text="Время",
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            time_label.bind(width=cls.message_width)
-            place_label = Label(
-                text="Место",
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            place_label.bind(width=cls.message_width)
-            topic_label = Label(
-                text="Тема",
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            topic_label.bind(width=cls.message_width)
-            family_label = Label(
-                text="Семья",
-                halign="center",
-                font_size="10sp",
-            )
-            family_label.bind(width=cls.message_width)
-            creator_label = Label(
-                text="Создатель",
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            creator_label.bind(width=cls.message_width)
-            who_doesnt_participate_label = Label(
-                text="Кто\nне участвует",
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            who_doesnt_participate_label.bind(width=cls.message_width)
-            notes_label = Label(
-                text="Заметки",
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            notes_label.bind(width=cls.message_width)
+            labels_layout_1 = BoxLayout(orientation="horizontal")
+            labels_layout_1.add_widget(Centered_Label(text="Дата"))
+            labels_layout_1.add_widget(Centered_Label(text="Время"))
+            labels_layout_1.add_widget(Centered_Label(text="Место"))
 
-            labels_layout_1 = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-            labels_layout_1.add_widget(date_label)
-            labels_layout_1.add_widget(time_label)
-            labels_layout_1.add_widget(place_label)
-            labels_layout_1.add_widget(topic_label)
-            labels_layout_1.add_widget(family_label)
-            labels_layout_1.add_widget(creator_label)
-            labels_layout_1.add_widget(who_doesnt_participate_label)
-            labels_layout_1.add_widget(notes_label)
-
-            viewing_events.date = Label(
+            viewing_events.date = Centered_Label(
                 text=events[current_event].date,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
             )
-            viewing_events.date.bind(width=cls.message_width)
-            viewing_events.time = Label(
+            viewing_events.time = Centered_Label(
                 text=events[current_event].time,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
             )
-            viewing_events.time.bind(width=cls.message_width)
-            viewing_events.place = Label(
+            viewing_events.place = Centered_Label(
                 text=events[current_event].place,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
             )
-            viewing_events.place.bind(width=cls.message_width)
-            viewing_events.topic = Label(
-                text=events[current_event].topic,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            viewing_events.topic.bind(width=cls.message_width)
-            viewing_events.family = Label(
-                text=events[current_event].family,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            viewing_events.family.bind(width=cls.message_width)
-            viewing_events.creator = Label(
-                text=events[current_event].creator,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            viewing_events.creator.bind(width=cls.message_width)
-            viewing_events.who_doesnt_participate = Label(
-                text=events[current_event].who_doesnt_participate,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            viewing_events.who_doesnt_participate.bind(width=cls.message_width)
-            viewing_events.notes = Label(
-                text=events[current_event].notes,
-                halign="center",
-                valign="middle",
-                font_size="10sp",
-            )
-            viewing_events.notes.bind(width=cls.message_width)
+
+            date_time_place_layout = BoxLayout(orientation="horizontal")
+            date_time_place_layout.add_widget(viewing_events.date)
+            date_time_place_layout.add_widget(viewing_events.time)
+            date_time_place_layout.add_widget(viewing_events.place)
 
             labels_layout_2 = BoxLayout(orientation="horizontal")
-            labels_layout_2.add_widget(viewing_events.date)
-            labels_layout_2.add_widget(viewing_events.time)
-            labels_layout_2.add_widget(viewing_events.place)
-            labels_layout_2.add_widget(viewing_events.topic)
-            labels_layout_2.add_widget(viewing_events.family)
-            labels_layout_2.add_widget(viewing_events.creator)
-            labels_layout_2.add_widget(viewing_events.who_doesnt_participate)
-            labels_layout_2.add_widget(viewing_events.notes)
+            labels_layout_2.add_widget(Centered_Label(text="Тема"))
+            labels_layout_2.add_widget(Centered_Label(text="Семья"))
+            labels_layout_2.add_widget(Centered_Label(text="Создатель"))
+
+            viewing_events.topic = Centered_Label(text=events[current_event].topic)
+            viewing_events.family = Centered_Label(text=events[current_event].family)
+            viewing_events.creator = Centered_Label(text=events[current_event].creator)
+
+            topic_family_creator_layout = BoxLayout(orientation="horizontal")
+            topic_family_creator_layout.add_widget(viewing_events.topic)
+            topic_family_creator_layout.add_widget(viewing_events.family)
+            topic_family_creator_layout.add_widget(viewing_events.creator)
+
+            labels_layout_3 = BoxLayout(orientation="horizontal")
+            labels_layout_3.add_widget(Centered_Label(text="Кто не участвует"))
+            labels_layout_3.add_widget(Centered_Label(text="Заметки"))
+
+            viewing_events.who_doesnt_participate = Centered_Label(
+                text=events[current_event].who_doesnt_participate,
+            )
+            viewing_events.notes = Centered_Label(
+                text=events[current_event].notes,
+            )
+
+            who_doesnt_participate_notes_layout = BoxLayout(orientation="horizontal")
+            who_doesnt_participate_notes_layout.add_widget(
+                viewing_events.who_doesnt_participate
+            )
+            who_doesnt_participate_notes_layout.add_widget(viewing_events.notes)
 
             previous = Button(
                 text="Предыдущее", on_press=viewing_events.previous_on_press
@@ -370,13 +287,17 @@ class Screens_Builder:
             )
             next = Button(text="Следующее", on_press=viewing_events.next_on_press)
 
-            buttons_layout = BoxLayout(orientation="horizontal")
+            buttons_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.3))
             buttons_layout.add_widget(previous)
             buttons_layout.add_widget(change_status)
             buttons_layout.add_widget(next)
 
             layout.add_widget(labels_layout_1)
+            layout.add_widget(date_time_place_layout)
             layout.add_widget(labels_layout_2)
+            layout.add_widget(topic_family_creator_layout)
+            layout.add_widget(labels_layout_3)
+            layout.add_widget(who_doesnt_participate_notes_layout)
             layout.add_widget(buttons_layout)
 
         viewing_events.add_widget(layout)

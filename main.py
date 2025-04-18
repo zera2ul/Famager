@@ -25,7 +25,7 @@ from screens import (
 
 class Application(App):
     def build(self):
-        Window.fullscreen = "auto"
+        # Window.fullscreen = "auto"
 
         scr_manager = ScreenManager()
         scr_manager.add_widget(User_Registration(name="user_registration"))

@@ -622,15 +622,12 @@ class Inviting_User_Into_Family(Screen):
         self.is_admin = ToggleButton(text="Админ", group="")
         invite = Button(text="Пригласить", on_press=self.invite_on_press)
 
-        buttons_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
-        buttons_layout.add_widget(self.is_admin)
-        buttons_layout.add_widget(invite)
-
         layout = BoxLayout(orientation="vertical")
         layout.add_widget(upper_layout)
         layout.add_widget(self.family_name)
         layout.add_widget(self.user)
-        layout.add_widget(buttons_layout)
+        layout.add_widget(self.is_admin)
+        layout.add_widget(invite)
 
         self.add_widget(layout)
 
@@ -958,7 +955,7 @@ class Creating_Event(Screen):
         date_time_place_layout.add_widget(self.time)
         date_time_place_layout.add_widget(self.place)
 
-        self.topic = TextInput(hint_text="Название", multiline=False, halign="center")
+        self.topic = TextInput(hint_text="Тема", multiline=False, halign="center")
         self.family = TextInput(hint_text="Семья", multiline=False, halign="center")
 
         topic_family_layout = BoxLayout(orientation="horizontal")
