@@ -6,7 +6,8 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.textinput import TextInput
 import webbrowser
 
-from globals import ROLES_EN_RU, ROLES_RU_EN, ROLES_LEVELS, events, current_event, news
+from database.configuration import ROLES_EN_RU, ROLES_RU_EN, ROLES_LEVELS
+import globals
 from auxiliary import (
     Centred_Text_Input,
     Centred_Button,
@@ -901,39 +902,37 @@ class Viewing_Events(Screen):
         Screens_Builder.build_viewing_events(self)
 
     def previous_on_press(self, instance):
-        global events, current_event
-
-        if current_event == 0:
+        if globals.current_event == 0:
             return
 
-        current_event -= 1
-        self.date.text = str(events[current_event].date)
-        self.time.text = str(events[current_event].time)
-        self.place.text = str(events[current_event].place)
-        self.topic.text = str(events[current_event].topic)
+        globals.current_event -= 1
+        self.date.text = str(globals.events[globals.current_event].date)
+        self.time.text = str(globals.events[globals.current_event].time)
+        self.place.text = str(globals.events[globals.current_event].place)
+        self.topic.text = str(globals.events[globals.current_event].topic)
 
-        self.family.text = str(events[current_event].family)
-        self.creator.text = str(events[current_event].creator)
+        self.family.text = str(globals.events[globals.current_event].family)
+        self.creator.text = str(globals.events[globals.current_event].creator)
         self.who_doesnt_participate.text = str(
-            events[current_event].who_doesnt_participate
+            globals.events[globals.current_event].who_doesnt_participate
         )
-        self.notes.text = str(events[current_event].notes)
+        self.notes.text = str(globals.events[globals.current_event].notes)
 
     def next_on_press(self, instance):
-        global events, current_event
-
-        if current_event == len(events) - 1:
+        if globals.current_event == len(globals.events) - 1:
             return
 
-        current_event += 1
-        self.date.text = events[current_event].date
-        self.time.text = events[current_event].time
-        self.place.text = events[current_event].place
-        self.topic.text = events[current_event].topic
-        self.family.text = events[current_event].family
-        self.creator.text = events[current_event].creator
-        self.who_doesnt_participate.text = events[current_event].who_doesnt_participate
-        self.notes.text = events[current_event].notes
+        globals.current_event += 1
+        self.date.text = globals.events[globals.current_event].date
+        self.time.text = globals.events[globals.current_event].time
+        self.place.text = globals.events[globals.current_event].place
+        self.topic.text = globals.events[globals.current_event].topic
+        self.family.text = globals.events[globals.current_event].family
+        self.creator.text = globals.events[globals.current_event].creator
+        self.who_doesnt_participate.text = globals.events[
+            globals.current_event
+        ].who_doesnt_participate
+        self.notes.text = globals.events[globals.current_event].notes
 
 
 class Creating_Event(Screen):
@@ -1136,7 +1135,6 @@ class Deleting_Event(Screen):
 
 class News(Screen):
     def __init__(self, **kw):
-        global news
         super().__init__(**kw)
 
         layout = BoxLayout(orientation="vertical")
@@ -1145,8 +1143,8 @@ class News(Screen):
                 text="На главную", on_press=self.to_main_on_press, size_hint=(1, 0.5)
             )
         )
-        news = News_Queries.get_all()
-        for it in news.keys():
+        globals.news = News_Queries.get_all()
+        for it in globals.news.keys():
             news_button = Centred_Button(text=it, on_press=self.button_on_press)
             layout.add_widget(news_button)
 
@@ -1156,4 +1154,4 @@ class News(Screen):
         self.manager.current = "main"
 
     def button_on_press(self, instance):
-        webbrowser.open(f"https://pravo.by{news[instance.text]}")
+        webbrowser.open(f"https://pravo.by{globals.news[instance.text]}")

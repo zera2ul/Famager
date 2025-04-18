@@ -5,7 +5,8 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 
-from globals import ROLES_EN_RU, events, current_event
+from database.configuration import ROLES_EN_RU
+import globals
 from database.queries import User_Queries, Invitation_Queries, Event_Queries
 
 
@@ -209,8 +210,6 @@ class Screens_Builder:
 
     @classmethod
     def build_viewing_events(cls, screen):
-        global events, current_event
-
         viewing_events = screen.manager.get_screen("viewing_events")
         viewing_events.__init__()
 
@@ -226,21 +225,21 @@ class Screens_Builder:
         layout.add_widget(upper_layout)
 
         user = Configuration.read_login()
-        events = Event_Queries.get_all_by_user(user)
-        if events != []:
+        globals.events = Event_Queries.get_all_by_user(user)
+        if globals.events != []:
             labels_layout_1 = BoxLayout(orientation="horizontal")
             labels_layout_1.add_widget(Centred_Label(text="Дата"))
             labels_layout_1.add_widget(Centred_Label(text="Время"))
             labels_layout_1.add_widget(Centred_Label(text="Место"))
 
             viewing_events.date = Centred_Label(
-                text=events[current_event].date,
+                text=globals.events[globals.current_event].date,
             )
             viewing_events.time = Centred_Label(
-                text=events[current_event].time,
+                text=globals.events[globals.current_event].time,
             )
             viewing_events.place = Centred_Label(
-                text=events[current_event].place,
+                text=globals.events[globals.current_event].place,
             )
 
             date_time_place_layout = BoxLayout(orientation="horizontal")
@@ -253,9 +252,15 @@ class Screens_Builder:
             labels_layout_2.add_widget(Centred_Label(text="Семья"))
             labels_layout_2.add_widget(Centred_Label(text="Создатель"))
 
-            viewing_events.topic = Centred_Label(text=events[current_event].topic)
-            viewing_events.family = Centred_Label(text=events[current_event].family)
-            viewing_events.creator = Centred_Label(text=events[current_event].creator)
+            viewing_events.topic = Centred_Label(
+                text=globals.events[globals.current_event].topic
+            )
+            viewing_events.family = Centred_Label(
+                text=globals.events[globals.current_event].family
+            )
+            viewing_events.creator = Centred_Label(
+                text=globals.events[globals.current_event].creator
+            )
 
             topic_family_creator_layout = BoxLayout(orientation="horizontal")
             topic_family_creator_layout.add_widget(viewing_events.topic)
@@ -267,10 +272,10 @@ class Screens_Builder:
             labels_layout_3.add_widget(Centred_Label(text="Заметки"))
 
             viewing_events.who_doesnt_participate = Centred_Label(
-                text=events[current_event].who_doesnt_participate,
+                text=globals.events[globals.current_event].who_doesnt_participate,
             )
             viewing_events.notes = Centred_Label(
-                text=events[current_event].notes,
+                text=globals.events[globals.current_event].notes,
             )
 
             who_doesnt_participate_notes_layout = BoxLayout(orientation="horizontal")
