@@ -481,7 +481,14 @@ class Event_Queries:
 
             return events
 
-    def get_all_by_user(user):
+    def compare(event):
+        return (
+            datetime.strptime(event.date, "%d.%m.%Y").date(),
+            datetime.strptime(event.time, "%H:%M").time(),
+        )
+
+    @classmethod
+    def get_all_by_user(cls, user):
         user = user.capitalize()
 
         with session_maker() as session:
@@ -496,6 +503,8 @@ class Event_Queries:
                         == it_2.id
                     ):
                         result.append(it_1)
+
+            result.sort(key=cls.compare)
 
             return result
 
